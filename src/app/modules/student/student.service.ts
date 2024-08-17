@@ -85,8 +85,9 @@ const getStudentsFromDB = async (query: Record<string, unknown>) => {
   const result = await StudentQuery.modelQuery;
   return result;
 };
+
 const getStudentFromDB = async (id: string) => {
-  const result = await StudentModel.findOne({ id });
+  const result = await StudentModel.findById(id);
   // const result = await StudentModel.aggregate([{ $match: { id: id } }]);
   return result;
 };
@@ -111,14 +112,10 @@ const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
     }
   }
 
-  const result = await StudentModel.findOneAndUpdate(
-    { id },
-    modifiedUpdateData,
-    {
-      new: true,
-      runValidators: true,
-    },
-  );
+  const result = await StudentModel.findByIdAndUpdate(id, modifiedUpdateData, {
+    new: true,
+    runValidators: true,
+  });
 
   return result;
 };
@@ -126,16 +123,17 @@ const deleteStudentFromDB = async (id: string) => {
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
-    const deletedStudent = await StudentModel.findOneAndUpdate(
-      { id },
+    const deletedStudent = await StudentModel.findByIdAndUpdate(
+      id,
       { isDeleted: true },
       { new: true, session },
     );
     if (!deletedStudent) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete student');
     }
-    const deletedUser = await User.findOneAndUpdate(
-      { id },
+    const userId = deletedStudent.user;
+    const deletedUser = await User.findByIdAndUpdate(
+      userId,
       { isDeleted: true },
       { new: true, session },
     );

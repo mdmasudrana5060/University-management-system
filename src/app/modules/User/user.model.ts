@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import { TUser } from './user.interface';
+import { TUser, UserModel } from './user.interface';
 import bcrypt from 'bcrypt';
 import config from '../../config';
 
@@ -13,10 +13,14 @@ const userSchema = new Schema<TUser>(
     password: {
       type: String,
       required: true,
+      select: 0,
     },
     needsPasswordChange: {
       type: Boolean,
       default: true,
+    },
+    passwordChangedAt: {
+      type: Date,
     },
     role: {
       type: String,
@@ -51,4 +55,22 @@ userSchema.post('save', function (doc, next) {
   doc.password = ' ';
   next();
 });
-export const User = model<TUser>('user', userSchema);
+
+userSchema.statics.isUserExistsByCustomId = async function (id) {
+  return await User.findOne({ id }).select('+password');
+};
+userSchema.statics.isPasswordMatched = async function (
+  plainPassword,
+  hashedPassword,
+) {
+  return await bcrypt.compare(plainPassword, hashedPassword);
+};
+userSchema.statics.isJWTIssuedPasswordChanged = async function (
+  passwordChangedTimeStamp: Date,
+  jwtIssuedTimeStamp: number,
+) {
+  const passwordChangeTime =
+    new Date(passwordChangedTimeStamp).getTime() / 1000;
+  return passwordChangeTime > jwtIssuedTimeStamp;
+};
+export const User = model<TUser, UserModel>('user', userSchema);
