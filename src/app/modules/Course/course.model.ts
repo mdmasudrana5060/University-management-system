@@ -32,6 +32,11 @@ const courseSchema = new Schema<TCourse>({
     required: true,
     trim: true,
   },
+  credits: {
+    type: Number,
+    trim: true,
+    required: true,
+  },
   preRequisiteCourses: [preRequisiteCourseSchema],
   isDeleted: {
     type: Boolean,
@@ -47,7 +52,7 @@ const courseFacultySchema = new Schema<TCourseFaculty>({
   faculties: [
     {
       type: Schema.Types.ObjectId,
-      ref: 'faculty',
+      ref: 'Faculty',
     },
   ],
 });

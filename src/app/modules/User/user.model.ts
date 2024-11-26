@@ -2,10 +2,16 @@ import { model, Schema } from 'mongoose';
 import { TUser, UserModel } from './user.interface';
 import bcrypt from 'bcrypt';
 import config from '../../config';
+import { userStatus } from './user.constant';
 
 const userSchema = new Schema<TUser>(
   {
     id: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    email: {
       type: String,
       required: true,
       unique: true,
@@ -24,11 +30,11 @@ const userSchema = new Schema<TUser>(
     },
     role: {
       type: String,
-      enum: ['student', 'faculty', 'admin'],
+      enum: ['superAdmin', 'student', 'faculty', 'admin'],
     },
     status: {
       type: String,
-      enum: ['in-progress', 'blocked'],
+      enum: userStatus,
       default: 'in-progress',
     },
     isDeleted: {

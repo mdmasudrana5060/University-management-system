@@ -142,6 +142,7 @@ const studentSchema = new Schema<TStudent>(
     },
     profileImg: {
       type: String,
+      default: '',
     },
     admissionSemester: {
       type: Schema.Types.ObjectId,
@@ -155,6 +156,10 @@ const studentSchema = new Schema<TStudent>(
       type: Schema.Types.ObjectId,
       ref: 'academicDepartment',
     },
+    academicFaculty: {
+      type: Schema.Types.ObjectId,
+      ref: 'academicFaculty',
+    },
   },
   {
     toJSON: {
@@ -165,13 +170,13 @@ const studentSchema = new Schema<TStudent>(
 
 // instance method
 studentSchema.methods.isUserExist = async function (id: string) {
-  const existingUser = await StudentModel.findOne({ id: id });
+  const existingUser = await Student.findOne({ id: id });
   return existingUser;
 };
 
 // creating static method
 // studentSchema.statics.isUserExist = async function (id: string) {
-//   const existingUser = await StudentModel.findOne({ id });
+//   const existingUser = await Student.findOne({ id });
 //   return existingUser;
 // };
 
@@ -192,4 +197,4 @@ studentSchema.pre('aggregate', function (next) {
 studentSchema.virtual('fullName').get(function () {
   return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
 });
-export const StudentModel = model<TStudent>('student', studentSchema);
+export const Student = model<TStudent>('student', studentSchema);

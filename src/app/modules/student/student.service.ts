@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { StudentModel } from './student.model';
+import { Student } from './student.model';
 import AppError from '../../error/AppError';
 import httpStatus from 'http-status';
 import { User } from '../User/user.model';
@@ -23,7 +23,7 @@ const getStudentsFromDB = async (query: Record<string, unknown>) => {
   //   'name.middleName',
   //   'presentAddress',
   // ];
-  // const searchQuery = StudentModel.find({
+  // const searchQuery = Student.find({
   //   $or: studentSearchableFields.map((field) => ({
   //     [field]: { $regex: searchTerm, $options: 'i' },
   //   })),
@@ -67,14 +67,9 @@ const getStudentsFromDB = async (query: Record<string, unknown>) => {
   // return fieldQuery;
 
   const StudentQuery = new QueryBuilder(
-    StudentModel.find()
+    Student.find()
       .populate('admissionSemester')
-      .populate({
-        path: 'academicDepartment',
-        populate: {
-          path: 'academicFaculty',
-        },
-      }),
+      .populate('academicDepartment academicFaculty'),
     query,
   )
     .search(studentSearchableFields)
@@ -83,12 +78,16 @@ const getStudentsFromDB = async (query: Record<string, unknown>) => {
     .paginate()
     .fields();
   const result = await StudentQuery.modelQuery;
-  return result;
+  const meta = await StudentQuery.countTotal();
+  return {
+    meta,
+    result,
+  };
 };
 
 const getStudentFromDB = async (id: string) => {
-  const result = await StudentModel.findById(id);
-  // const result = await StudentModel.aggregate([{ $match: { id: id } }]);
+  const result = await Student.findById(id);
+  // const result = await Student.aggregate([{ $match: { id: id } }]);
   return result;
 };
 const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
@@ -112,7 +111,7 @@ const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
     }
   }
 
-  const result = await StudentModel.findByIdAndUpdate(id, modifiedUpdateData, {
+  const result = await Student.findByIdAndUpdate(id, modifiedUpdateData, {
     new: true,
     runValidators: true,
   });
@@ -123,7 +122,7 @@ const deleteStudentFromDB = async (id: string) => {
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
-    const deletedStudent = await StudentModel.findByIdAndUpdate(
+    const deletedStudent = await Student.findByIdAndUpdate(
       id,
       { isDeleted: true },
       { new: true, session },
