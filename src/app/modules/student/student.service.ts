@@ -8,68 +8,11 @@ import QueryBuilder from '../../builder/QueryBuilder';
 import { studentSearchableFields } from './student.constant';
 
 const getStudentsFromDB = async (query: Record<string, unknown>) => {
-  // let searchTerm = '';
-  // const queryObj = { ...query };
-  // if (query?.searchTerm) {
-  //   searchTerm = query.searchTerm as string;
-  //   console.log(searchTerm);
-  // }
-
-  // const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
-  // excludeFields.forEach((el) => delete queryObj[el]);
-
-  // const studentSearchableFields = [
-  //   'email',
-  //   'name.middleName',
-  //   'presentAddress',
-  // ];
-  // const searchQuery = Student.find({
-  //   $or: studentSearchableFields.map((field) => ({
-  //     [field]: { $regex: searchTerm, $options: 'i' },
-  //   })),
-  // });
-  // const filterQuery = searchQuery
-  //   .find(queryObj)
-  // .populate('admissionSemester')
-  // .populate({
-  //   path: 'academicDepartment',
-  //   populate: {
-  //     path: 'academicFaculty',
-  //   },
-  // });
-  // let sort = '-createdAt';
-  // if (query?.sort) {
-  //   sort = query.sort as string;
-  // }
-
-  // let page = 1;
-  // let limit = 1;
-  // let skip = 0;
-  // if (query.limit) {
-  //   limit = Number(query.limit);
-  // }
-  // if (query.page) {
-  //   page = Number(query.page);
-  //   skip = (page - 1) * limit;
-  // }
-  // const sortQuery = filterQuery.sort(sort);
-  // const paginateQuery = sortQuery.skip(skip);
-
-  // const limitQuery = paginateQuery.limit(limit);
-
-  // let fields = '-_v';
-
-  // if (query.fields) {
-  //   fields = (query.fields as string).split(',').join(' ');
-  //   console.log(fields);
-  // }
-  // const fieldQuery = await limitQuery.select(fields);
-  // return fieldQuery;
-
   const StudentQuery = new QueryBuilder(
-    Student.find()
-      .populate('admissionSemester')
-      .populate('academicDepartment academicFaculty'),
+    Student.find().populate('user').populate('admissionSemester').populate({
+      path: 'academicDepartment academicFaculty',
+    }),
+
     query,
   )
     .search(studentSearchableFields)

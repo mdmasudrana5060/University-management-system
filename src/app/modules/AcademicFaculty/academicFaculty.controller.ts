@@ -19,13 +19,16 @@ const createAcademicFaculty = catchAsync(async (req, res) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 });
 const getAllAcademicFaculties = catchAsync(async (req, res) => {
-  const result = await AcademicFacultyServices.getAllAcademicFacultiesFromDB();
+  const result = await AcademicFacultyServices.getAllAcademicFacultiesFromDB(
+    req.query,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Academic Faculties are retrieved successfully',
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 
