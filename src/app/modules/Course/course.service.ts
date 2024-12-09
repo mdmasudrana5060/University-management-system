@@ -142,11 +142,10 @@ const assignFacultiesWithCourseIntoDb = async (
 };
 
 const getFacultiesWithCourseFromDB = async (courseId: string) => {
-  console.log('getFaculties route hit');
-
   const result = await CourseFaculty.findOne({ course: courseId }).populate(
     'faculties',
   );
+
   return result;
 };
 const removFacultiesWithCourseFromDb = async (
