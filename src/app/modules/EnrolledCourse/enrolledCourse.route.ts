@@ -13,6 +13,13 @@ router.post(
   ),
   EnrolledCourseController.createEnrollCourse,
 );
+
+router.get(
+  '/',
+  auth(USER_ROLE.faculty),
+  EnrolledCourseController.getAllEnrolledCourses,
+);
+
 router.get(
   '/my-enrolled-courses',
   auth(USER_ROLE.student),

@@ -10,6 +10,7 @@ import { User } from '../modules/User/user.model';
 const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;
+
     if (!token) {
       throw new AppError(httpStatus.UNAUTHORIZED, 'You are unauthorized');
     }
@@ -41,9 +42,12 @@ const auth = (...requiredRoles: TUserRole[]) => {
     }
     if (
       user.passwordChangedAt &&
-      User.isJWTIssuedPasswordChanged(user.passwordChangedAt, iat as number)
+      User.isJWTIssuedBeforePasswordChanged(
+        user.passwordChangedAt,
+        iat as number,
+      )
     ) {
-      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized');
+      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized !');
     }
     if (requiredRoles && !requiredRoles.includes(role)) {
       throw new AppError(httpStatus.UNAUTHORIZED, 'This is unauthorized');
